@@ -2,18 +2,19 @@
 
 # Ensure script is run as root
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
 # Ensure dependencies are installed
 echo "Installing essential dependencies..."
-apt update && apt install -y awscli jq \
-    apt-transport-https ca-certificates curl gnupg lsb-release wget unzip || { echo "Dependency installation failed"; exit 1; }
-sudo apt upgrade -y
+yum update -y && yum install -y awscli jq \
+    yum-utils curl ca-certificates wget unzip || { echo "Dependency installation failed"; exit 1; }
+sudo yum upgrade -y
+
 # Install Python 3 and pip
 echo "Installing Python 3 and pip..."
-apt install -y python3 python3-pip || { echo "Python 3 or pip installation failed"; exit 1; }
+yum install -y python3 python3-pip || { echo "Python 3 or pip installation failed"; exit 1; }
 
 # Verify installations
 python3 --version && pip3 --version || { echo "Python or pip verification failed"; exit 1; }
@@ -49,11 +50,11 @@ fi
 
 # Install Docker
 echo "Installing Docker..."
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+yum install -y yum-utils device-mapper-persistent-data lvm2 || { echo "Docker dependencies installation failed"; exit 1; }
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo || { echo "Adding Docker repo failed"; exit 1; }
+yum install -y docker-ce docker-ce-cli containerd.io || { echo "Docker installation failed"; exit 1; }
+sudo yum upgrade -y
 
-apt update && apt install -y docker-ce docker-ce-cli containerd.io || { echo "Docker installation failed"; exit 1; }
-sudo apt upgrade -y
 # Enable and start Docker service
 echo "Enabling and starting Docker service..."
 systemctl enable docker
@@ -68,7 +69,7 @@ docker --version || { echo "Docker verification failed"; exit 1; }
 
 # Java Installation
 echo "Installing Java..."
-apt install -y fontconfig openjdk-17-jre openjdk-17-jdk-headless || { echo "Java installation failed"; exit 1; }
+yum install -y java-17-openjdk java-17-openjdk-devel fontconfig || { echo "Java installation failed"; exit 1; }
 java -version || { echo "Java verification failed"; exit 1; }
 
 echo "Installation script completed successfully."
