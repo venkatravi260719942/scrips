@@ -2,21 +2,33 @@
 
 # Ensure script is run as root
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
-# Ensure dependencies are installed
+# Update and install essential dependencies
 echo "Installing essential dependencies..."
-apt update && apt install -y awscli jq \
-    apt-transport-https ca-certificates curl gnupg lsb-release wget unzip || { echo "Dependency installation failed"; exit 1; }
-sudo apt upgrade -y
-# Install Python 3 and pip
-echo "Installing Python 3 and pip..."
-apt install -y python3 python3-pip || { echo "Python 3 or pip installation failed"; exit 1; }
+yum update -y && yum install -y awscli jq \
+    amazon-linux-extras curl ca-certificates wget unzip || { echo "Dependency installation failed"; exit 1; }
+yum upgrade -y
+
+# Enable extras and update the system
+amazon-linux-extras enable python3.8
+amazon-linux-extras enable docker
+
+# Install Python 3
+sudo yum install -y python3
+
+# Install pip for Python 3
+sudo yum install -y python3-pip
+sudo ln -s /usr/bin/pip3 /usr/bin/pip
+
 
 # Verify installations
-python3 --version && pip3 --version || { echo "Python or pip verification failed"; exit 1; }
+python3 --version
+pip --version
+pip3 --version
+
 echo "Python 3 and pip have been installed successfully."
 
 # AWS Configure
@@ -49,11 +61,8 @@ fi
 
 # Install Docker
 echo "Installing Docker..."
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+yum install -y docker || { echo "Docker installation failed"; exit 1; }
 
-apt update && apt install -y docker-ce docker-ce-cli containerd.io || { echo "Docker installation failed"; exit 1; }
-sudo apt upgrade -y
 # Enable and start Docker service
 echo "Enabling and starting Docker service..."
 systemctl enable docker
@@ -66,9 +75,13 @@ docker --version || { echo "Docker verification failed"; exit 1; }
 #     usermod -aG docker $USER
 # fi
 
+# Install Java
 # Java Installation
-echo "Installing Java..."
-apt install -y fontconfig openjdk-17-jre openjdk-17-jdk-headless || { echo "Java installation failed"; exit 1; }
-java -version || { echo "Java verification failed"; exit 1; }
+sudo amazon-linux-extras enable corretto17
+sudo yum install -y java-17-amazon-corretto
+java -version
+sudo amazon-linux-extras enable corretto17
+sudo yum install -y java-17-amazon-corretto-devel
+javac -version
 
 echo "Installation script completed successfully."
