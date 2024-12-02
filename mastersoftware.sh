@@ -29,6 +29,23 @@ pip3 --version
 
 echo "Python 3 and pip have been installed successfully."
 
+sudo apt update
+
+# Install required dependencies
+sudo apt install -y curl unzip
+
+# Download the AWS CLI v2 installation file
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+# Unzip the downloaded file
+unzip awscliv2.zip
+
+# Run the installer
+sudo ./aws/install
+
+# Verify the installation
+aws --version
+
 # Ensure dependencies are installed
 apt update && apt install -y awscli jq unzip
     apt-transport-https ca-certificates curl gnupg lsb-release wget
