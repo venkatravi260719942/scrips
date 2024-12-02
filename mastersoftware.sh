@@ -47,7 +47,7 @@ sudo ./aws/install
 aws --version
 
 # Ensure dependencies are installed
-apt update && apt install -y awscli jq unzip
+apt update && apt install -y jq unzip
     apt-transport-https ca-certificates curl gnupg lsb-release wget
 
 # AWS Configure
