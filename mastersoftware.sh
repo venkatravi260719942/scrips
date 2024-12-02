@@ -117,5 +117,5 @@ systemctl enable jenkins
 systemctl start jenkins
 
 # Check Jenkins status
-systemctl status jenkins && systemctl status docker
+systemctl status jenkins --no-pager && systemctl status docker --no-pager
 
